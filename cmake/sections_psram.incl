@@ -1,0 +1,31 @@
+/* The app zeros this PSRAM range after SDK startup. */
+SECTIONS
+{
+    .psram_load : {
+        __psram_start__ = .;
+        __psram_load_start__ = .;
+        *(SORT(.psram_initialised.*))
+        *(.data.potionTable_*)
+        *(.data.scrollTable_*)
+        *(.data.charmTable_*)
+        *(.data.wandTable_*)
+        . = ALIGN(4);
+        __psram_load_end__ = .;
+    } > PSRAM AT> PSRAM_STORE
+    __psram_load_source__ = LOADADDR(.psram_load);
+
+    .psram_noload (NOLOAD) : {
+        *(SORT(.psram_uninitialised.*))
+        . = ALIGN(4);
+        __brogue_psram_bss_start__ = .;
+        *(.bss.messageArchive)
+        *(.bss.terrainRandomValues)
+        *(.bss.previouslyPlottedCells)
+        *(.bss.displayBuffer)
+        *(.bss.map.*)
+        *(.bss.scoreBuffer)
+        . = ALIGN(4);
+        __brogue_psram_bss_end__ = .;
+        __psram_end__ = .;
+    } > PSRAM
+}
